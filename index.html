@@ -2,10 +2,10 @@
 <html lang="pt-br">
   <head>
     <!-- Código do Vturb -->
-  <link rel="preload" href="https://scripts.converteai.net/255e00c4-7cba-4428-aede-f894f697413a/players/6560a52101dd3c00095be94b/player.js" as="script">
+  <link rel="preload" href="https://scripts.converteai.net/2132068f-46e5-4b17-b687-375634300298/players/65a0f4c2e69feb00095c3148/player.js" as="script">
 <link rel="preload" href="https://cdn.converteai.net/lib/js/smartplayer/v1/smartplayer.min.js" as="script">
-<link rel="preload" href="https://images.converteai.net/255e00c4-7cba-4428-aede-f894f697413a/players/6560a52101dd3c00095be94b/thumbnail.jpg" as="image">
-<link rel="preload" href="https://cdn.converteai.net/255e00c4-7cba-4428-aede-f894f697413a/6560a4b916fa8e00094e2495/main.m3u8" as="fetch">
+<link rel="preload" href="https://images.converteai.net/2132068f-46e5-4b17-b687-375634300298/players/65a0f4c2e69feb00095c3148/thumbnail.jpg" as="image">
+<link rel="preload" href="https://cdn.converteai.net/2132068f-46e5-4b17-b687-375634300298/65a0f460c1333600090ae4b7/main.m3u8" as="fetch">
 <link rel="dns-prefetch" href="https://cdn.converteai.net">
 <link rel="dns-prefetch" href="https://scripts.converteai.net">
 <link rel="dns-prefetch" href="https://images.converteai.net">
@@ -78,7 +78,178 @@ src="https://www.facebook.com/tr?id=3486098255033794&ev=PageView&noscript=1"
              
             <!-- VSL -->
 
-            <div id="vid_6560a52101dd3c00095be94b" style="position:relative;width:100%;padding: 56.25% 0 0;"><img id="thumb_6560a52101dd3c00095be94b" src="https://images.converteai.net/255e00c4-7cba-4428-aede-f894f697413a/players/6560a52101dd3c00095be94b/thumbnail.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;"><div id="backdrop_6560a52101dd3c00095be94b" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div></div><script type="text/javascript" id="scr_6560a52101dd3c00095be94b">var s=document.createElement("script");s.src="https://scripts.converteai.net/255e00c4-7cba-4428-aede-f894f697413a/players/6560a52101dd3c00095be94b/player.js",s.async=!0,document.head.appendChild(s);</script>
+            <div id="vid_65a0f4c2e69feb00095c3148" style="position:relative;width:100%;padding: 56.25% 0 0;"><img id="thumb_65a0f4c2e69feb00095c3148" src="https://images.converteai.net/2132068f-46e5-4b17-b687-375634300298/players/65a0f4c2e69feb00095c3148/thumbnail.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;"><div id="backdrop_65a0f4c2e69feb00095c3148" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div></div><script type="text/javascript" id="scr_65a0f4c2e69feb00095c3148">var s=document.createElement("script");s.src="https://scripts.converteai.net/2132068f-46e5-4b17-b687-375634300298/players/65a0f4c2e69feb00095c3148/player.js",s.async=!0,document.head.appendChild(s);</script>
+
+            <script>
+  function moveCTA(container) {
+   const cta = container.querySelector(".smartplay + .smartplayer-call-action");
+
+   if (!cta) return;
+
+   container.parentNode.insertBefore(cta, container.nextSibling);
+  }
+
+  function insertBeforePlayer(instance, prefix) {
+   if(!instance) return;
+
+   const player = instance.mobileContainer || instance.container;
+
+   const container = document.createElement("div");
+
+   container.id = `${prefix}-${instance.options.id}`
+   container.classList.add(prefix);
+
+   player.parentNode.insertBefore(container, player);
+
+   container.appendChild(player);
+
+   return container;
+  }
+
+  function mountContainers() {
+   const instances = window.smartplayer.instances;
+
+   instances.forEach(instance => {
+    const container = insertBeforePlayer(instance, `player-fake-fs`)
+
+    if(!container) return;
+
+    moveCTA(container)
+
+    let firstClick = instance.resume?.inResume === undefined;
+
+    container.addEventListener("click", () => {
+     console.log(instance.resume)
+     if (!firstClick && container.dataset.fullscreen === "true") instance.pause();
+
+     firstClick = false;
+    });
+   });
+
+   instances.forEach(instance => insertBeforePlayer(instance, `player-auto-height`));
+  }
+
+  function mountStyles() {
+   const styles = document.createElement("style");
+
+   styles.innerHTML = `
+    .player-fake-fs[data-fullscreen='true'] {
+     display: flex !important;
+     align-items: center !important;
+     background-color: #000 !important;
+     height: 100vh !important;
+     width: 100vw !important;
+     cursor: pointer;
+    }
+
+    .player-fake-fs[data-fullscreen='true'] .player-auto-height .smartplayer-mobile-container {
+     max-width: 100% !important;
+    }
+
+    .player-fake-fs[data-fullscreen='false'] .player-auto-height {
+     width: 100% !important;
+    }
+
+    .player-fake-fs[data-fullscreen='false'] {
+     margin-left: 0 !important;
+    }
+
+    .player-auto-height {
+     margin: 0 auto;
+     width: 100%;
+    }
+   `;
+
+   document.head.appendChild(styles);
+  }
+
+  function adjustXPositionFs() {
+   const currentFs = document.querySelectorAll(".player-fake-fs[data-fullscreen='true']");
+
+   currentFs.forEach(container => {
+    container.style.marginLeft = "0";
+
+    const position = container.getBoundingClientRect()
+
+    if(position.left <= 0) return;
+
+    container.style.marginLeft = `-${position.left}px`;
+   });
+  }
+
+  function changeWidthByHeight() {
+   const containers = document.querySelectorAll(".player-auto-height");
+
+   containers.forEach(container => {
+    const video = container.querySelector("video");
+
+    if (!video) return;
+
+    const aspectRatio = video.clientWidth / video.clientHeight;
+
+    const windowHeight = window.innerHeight;
+    const newWidth = windowHeight * aspectRatio;
+
+    const width = (newWidth / window.innerWidth) * 100;
+
+    container.style.width = `${width >= 100 ? 100 : width}%`;
+   });
+  }
+
+  function scrollToFS(container) {
+   const position = container.getBoundingClientRect();
+
+   window.scrollTo({
+    top: position.top + window.scrollY,
+    left: position.left + window.scrollX,
+   });
+  }
+
+  function toggleFs(id, inFullscreen = false) {
+   const container = document.getElementById(`player-fake-fs-${id}`);
+
+   if (!container) return;
+
+   container.dataset.fullscreen = inFullscreen.toString()
+
+   if (inFullscreen) {
+    window.addEventListener("resize", changeWidthByHeight);
+
+    changeWidthByHeight();
+    adjustXPositionFs();
+
+    return scrollToFS(container);
+   }
+
+   window.removeEventListener("resize", changeWidthByHeight);
+  }
+
+  function mountFakeFsEvents() {
+   const instances = window.smartplayer.instances;
+
+   window.addEventListener("resize", adjustXPositionFs);
+
+   instances.forEach(instance => {
+    instance.on("play", () => toggleFs(instance.options.id, true));
+
+    instance.on("pause", () => toggleFs(instance.options.id, false));
+   });
+  }
+
+  function customEvents() {
+   mountContainers();
+   mountStyles();
+   mountFakeFsEvents()
+  }
+
+  function checkPlayerLoaded() {
+   if (window.smartplayer && window.smartplayer.instances) return customEvents()
+
+   return setTimeout(checkPlayerLoaded, 100)
+  }
+
+  window.addEventListener("load", () => checkPlayerLoaded())
+</script>
             <!-- Botão 1 -->
             <div id="cta1" class="mt-4 d-none">
               <a href="https://www.google.com/" class="a-btn" style="text-decoration: none;">
